@@ -9,6 +9,8 @@ public class Elevator_System {
     HashMap<String, HashMap<Integer,Integer>> map;
     HashSet<Integer> destinations;
 
+    int[] prev_floor;
+
     public Elevator_System(int numFloors, int currFloor){
         this.currFloor = currFloor;
         this.numFloors = numFloors;
@@ -17,6 +19,7 @@ public class Elevator_System {
         map.put("UP",new HashMap<>());
         map.put("DOWN",new HashMap<>());
         this.destinations = new HashSet<>();
+        this.prev_floor = new int[]{-1,-1};
     }
 
     public void addRequest(Request req){
@@ -33,13 +36,27 @@ public class Elevator_System {
                 }
             }
             this.currDir = Direction.DOWN;
-        }else{
+        }else if(dir == Direction.DOWN){
             for(int floor = currFloor-1; floor >= 0; floor--){
                 if(map.get("DOWN").getOrDefault(floor,0) != 0 || destinations.contains(floor)){
                     return floor;
                 }
             }
             this.currDir = Direction.UP;
+        }else{
+            for(int floor = 0; floor < numFloors; floor++){
+                if(map.get("UP").getOrDefault(floor,0) != 0){
+                    this.currDir = Direction.UP;
+                    return floor;
+                }
+            }
+            for(int floor = 0; floor < numFloors; floor++){
+                if(map.get("DOWN").getOrDefault(floor,0) != 0){
+                    this.currDir = Direction.DOWN;
+                    return floor;
+                }
+            }
+
         }
         return currFloor;
 
@@ -66,8 +83,11 @@ public class Elevator_System {
                 String[] inp = scanner.nextLine().split(" ");
                 for(int i=0; i<inp.length; i++) destinations.add(Integer.parseInt(inp[i]));
             }
-
+            prev_floor[0] = prev_floor[1];
+            prev_floor[1] = this.currFloor;
             this.currFloor = toGoFloor;
+
+            if(prev_floor[0] == this.currFloor) this.currDir = Direction.STOP;
         }
 
 
